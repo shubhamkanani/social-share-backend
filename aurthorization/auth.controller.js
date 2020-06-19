@@ -9,28 +9,10 @@ const smtpTransport = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     auth: {
-      user: "shubhamkanani605@gmail.com",
-      pass: 's9825784600'
+      user: "shubhamkanani.dds@gmail.com",
+      pass: 'Sh9825784600'
     }
   });
-  const emailConfirmation = (user, emailId) => {
-    const token = tokenForUser(user);
-    const data = {
-      to: emailId,
-      from: process.env.MAILER_EMAIL_ID,
-      subject: "Click Below Link To Reset Password ",
-      text:
-        "Confirm your email address to get started.\n\n" +
-        "Please click on the following link, or paste this into your browser to the reset password process:\n\n" +
-        "http://localhost:8080/auth/signupconfirm?token=" +
-        token +
-        "\n\n" +
-        "If you did not need this, please ignore this email and your password will remain unchanged.\n"
-    };
-    smtpTransport.sendMail(data, err => {
-        return err ? console.log("Email Error==>", err) : "";
-      });
-    };
 // Registration api
 
 export const signup = async (req,res) =>{
@@ -148,7 +130,7 @@ export const signin = async (req,res) => {
     }
 }
 
-//forget password Link genration 
+//forget password Link genration
 
 export const forgotPassword = async (req,res) =>{
     let {email} = req.body
@@ -187,4 +169,20 @@ export const forgotPassword = async (req,res) =>{
               message: "please check your email to reset your password!"
             });
       });
+}
+export const resetPassword = async(req,res) =>{
+  try{
+    const token = req.query.token;
+    await Users.findOneAndUpdate(
+      { emailId: decoded.sub },
+      { password: bcrypt.hashSync(req.body.password) }
+    );
+    return res.status(200).send({
+      success: true,
+      message: "your password changed successfully!"
+    });
+  }
+  catch(err){
+    res.status(422).send({ success: false, message: err.message });
+  }
 }

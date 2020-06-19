@@ -1,2 +1,2 @@
-//export * from './users.restRouter';
+export * from './user.restRouter';
 export * from './user.modal'
