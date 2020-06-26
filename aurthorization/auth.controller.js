@@ -108,7 +108,8 @@ export const signin = async (req,res) => {
                if(userExistence){
                 res.status(200).send({
                     success: true,
-                    token: tokenForUser(userExistence)
+                    token: tokenForUser(userExistence),
+                    data:userExistence
                   });
             }
             }
@@ -117,7 +118,8 @@ export const signin = async (req,res) => {
                if(userExistence){
                 res.status(200).send({
                     success: true,
-                    token: tokenForUser(userExistence)
+                    token: tokenForUser(userExistence),
+                    data:userExistence
                   });
             }
             }
