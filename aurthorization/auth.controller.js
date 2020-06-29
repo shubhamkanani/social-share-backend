@@ -79,7 +79,7 @@ const expirationInterval =
 
 const tokenForUser = (user) => {
     try {
-      //console.log(user.emailId)
+      console.log(user.emailId)
       const timestamp = new Date().getTime();
       return jwt.sign(
         {
@@ -90,7 +90,7 @@ const tokenForUser = (user) => {
         },
         configKey.secrets.JWT_SECRET
       );
-    } 
+    }
     catch (err) {
       throw err;
     }
@@ -135,6 +135,7 @@ export const signin = async (req,res) => {
 //forget password Link genration
 
 export const forgotPassword = async (req,res) =>{
+  try{
     let {email} = req.body
     const emailId = email.toLowerCase();
     const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -149,7 +150,10 @@ export const forgotPassword = async (req,res) =>{
           .status(422)
           .send({ success: false, message: "email in not registered" });
       }
-      const token = tokenForUser(req.body);
+      const mail = {
+        emailId:email
+      }
+      const token = tokenForUser(mail);
       const data = {
         to: emailId,
         from: process.env.MAILER_EMAIL_ID,
@@ -157,7 +161,7 @@ export const forgotPassword = async (req,res) =>{
         text:
           "Confirm your email address to get started.\n\n" +
           "Please click on the following link, or paste this into your browser to the reset password process:\n\n" +
-          "http://localhost:8080/auth/signupconfirm?token=" +
+          "http://localhost:4200/reset?token=" +
           token +
           "\n\n" +
           "If you did not need this, please ignore this email and your password will remain unchanged.\n"
@@ -171,10 +175,16 @@ export const forgotPassword = async (req,res) =>{
               message: "please check your email to reset your password!"
             });
       });
+  }
+  catch(err){
+    res.status(422).send({ success: false, message: err.message });
+  }
 }
 export const resetPassword = async(req,res) =>{
   try{
     const token = req.query.token;
+    const decoded =jwt.decode(token)
+    console.log(decoded);
     await Users.findOneAndUpdate(
       { emailId: decoded.sub },
       { password: bcrypt.hashSync(req.body.password) }

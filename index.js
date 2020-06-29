@@ -11,6 +11,10 @@ if (process.env.NODE_ENV === "development") {
     server = app
   }
 
+  app.get('/', (req,res) => {
+    res.send('welcome');
+  })
+
 const PORT = process.env.PORT || 8000
 
 server.listen(PORT, async () => {
