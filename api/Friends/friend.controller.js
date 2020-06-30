@@ -8,7 +8,9 @@ export const getFriendList = async (req,res) =>{
         
     }
     catch(err){
-
+        res.status(401).send({
+            success:true,message:err.message
+        });
     }
 }
 
@@ -16,10 +18,17 @@ export const getFriendList = async (req,res) =>{
 
 export const  setFriend = async(req,res) =>{
     try{
-        
+        const userFind = await FriendList.find({userId:userId})
+        if(!userFind){
+            await FriendList.create({
+                userId:userId,
+            })
+        }
     }
     catch(err){
-
+        res.status(401).send({
+            success:true,message:err.message
+        });
     }
 }
 
@@ -30,7 +39,9 @@ export const checkReqAlreadyExist = async(req,res)=>{
 
     }
     catch(err){
-
+        res.status(401).send({
+            success:true,message:err.message
+        });
     }
 }
 
@@ -41,6 +52,8 @@ export const setFriendRequest = async(req,res) =>{
 
     }
     catch(err){
-
+        res.status(401).send({
+            success:true,message:err.message
+        });
     }
 }
