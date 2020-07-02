@@ -8,4 +8,4 @@ const friendSchema = Schema({
     sentRequest:Array
 }, { timestamps: {createdAt:'created_at'} })
 
-export const FriendList = mongoose.model('userInfo',friendSchema);
+export const FriendList = mongoose.model('FriendDocument',friendSchema);
