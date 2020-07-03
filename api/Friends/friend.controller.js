@@ -145,7 +145,7 @@ export const friendRequestAccept = async(req,res) =>{
         pushQuery(userId,requestId,"friendList");
         pullQuery(userId,requestId,"getRequest");
         pushQuery(requestId,userId,"friendList");
-        pullQuery(requestId,userId,"sentRequest");    
+        pullQuery(requestId,userId,"sentRequest");
         return res.status(200).send({
             success:true,
             message:'you and ' + [requestedUser.userName] + " are friend's now"
@@ -200,5 +200,35 @@ export const rejectFriendRequest = async(req,res) =>{
             success:false,
             message:err.message
         }) 
+    }
+}
+
+//suggested friends
+// const getSuggestFriend = (friend) =>{
+
+// }
+export const suggestedFriend = async(req,res) =>{
+    try{
+        const {userId} = req.body
+        const friends = await FriendList.findOne({userId:userId})
+        const data=[];
+        const suggest =[];
+        await Promise.all(friends.friendList.map(async(item)=>{
+            const findFriendOfFriend = await FriendList.findOne({userId:item.friendId})
+            await Promise.all(findFriendOfFriend.friendList.map((items)=>{
+                suggest.push(items.friendId);
+            }))
+        })) 
+        console.log(suggest,'out')
+        return res.status(200).send({
+            success:true,
+            data:suggest
+        })
+    }   
+    catch(err){
+        res.status(401).send({
+            success:false,
+            message:err.message
+        })
     }
 }
