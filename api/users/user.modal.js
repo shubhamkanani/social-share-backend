@@ -7,6 +7,13 @@ const userSchema = Schema({
     password:String,
     mobileNo:Number,
     userName:String,
+    profession:String,
+    country:String,
+    city:String,
+    hobbies:Array,
+    profileImgURL:String,
+    coverImgURl:String,
+    content:String
 }, { timestamps: {createdAt:'created_at'} })
 
 export const Users = mongoose.model('userInfo',userSchema);
