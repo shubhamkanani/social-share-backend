@@ -6,21 +6,8 @@ import jwt from 'jsonwebtoken';
 export const getProfile = async(req,res) =>{
     try{
         const userId = req.query.id;
-        const profileData = await Users.aggregate([
-            {
-                $match:{
-                    _id: mongoose.Types.ObjectId(userId)
-                }
-            },
-            {
-                $project:{
-                    name:1,
-                    emailId:1,
-                    mobileNo:1,
-                    userName:1
-                }
-            }
-        ])
+        const profileData = await Users.findById(userId)
+        console.log(profileData);
         if(profileData.length<=0){
             res.status(401).send({
                 success:false,
