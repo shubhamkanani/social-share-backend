@@ -216,7 +216,9 @@ export const suggestedFriend = async(req,res) =>{
         await Promise.all(friends.friendList.map(async(item)=>{
             const findFriendOfFriend = await FriendList.findOne({userId:item.friendId})
             await Promise.all(findFriendOfFriend.friendList.map((items)=>{
-                suggest.push(items.friendId);
+                if(!items.friendId==userId){
+                    suggest.push(items.friendId);
+                }
             }))
         })) 
         console.log(suggest,'out')

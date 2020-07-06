@@ -1,5 +1,7 @@
 import {Users} from './user.modal'
 import mongoose from 'mongoose'
+import configKey from '../../config'
+import jwt from 'jsonwebtoken';
 // get user profile by id
 export const getProfile = async(req,res) =>{
     try{
@@ -92,6 +94,64 @@ export const updateUser = async(req,res) =>{
             success:true,
             message:'data update successsully'
         })
+    }
+    catch(err){
+        res.status(401).send({
+            success:false,
+            message:err.message
+        })
+    }
+}
+
+//upload profile Image
+export const setProfileImg = async(req,res) =>{
+    try{
+        if(req.file){
+            console.log(req.file);
+            const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
+            await Users.findOneAndUpdate({emailId:decoded.sub},{
+                profileImgURL:req.file.path
+            })
+            return res.status(201).send({
+                success:true,
+                message:'image upload successfully'
+            })
+        }
+        else{
+            res.status(401).send({
+                success:false,
+                message:"Image file either not supported or not found"
+            })
+        }
+    }
+    catch(err){
+        res.status(401).send({
+            success:false,
+            message:err.message
+        })
+    }
+}
+
+//upload Cover Image
+export const setCoverImg= async(req,res) =>{
+    try{
+        if(req.file){
+            console.log(req.file);
+            const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
+            await Users.findOneAndUpdate({emailId:decoded.sub},{
+                coverImgURl:req.file.path
+            })
+            return res.status(201).send({
+                success:true,
+                message:'image upload successfully'
+            })
+        }
+        else{
+            res.status(401).send({
+                success:false,
+                message:"Image file either not supported or not found"
+            })
+        }
     }
     catch(err){
         res.status(401).send({
