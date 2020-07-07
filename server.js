@@ -26,6 +26,7 @@ app.use('/auth',(req,res,next)=>{
   next();
 })
 app.use('/auth',authRouter)
+app.use(express.static('public'))
 app.use('/api',(req,res,next)=>{
   res.header("Access-Control-Allow-Origin", "*")
   res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")

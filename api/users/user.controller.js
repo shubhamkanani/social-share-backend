@@ -97,7 +97,7 @@ export const setProfileImg = async(req,res) =>{
             console.log(req.file);
             const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
             await Users.findOneAndUpdate({emailId:decoded.sub},{
-                profileImgURL:req.file.path
+                profileImgURL:"http://localhost:8000/profile/"+req.file.filename
             })
             return res.status(201).send({
                 success:true,
@@ -126,7 +126,7 @@ export const setCoverImg= async(req,res) =>{
             console.log(req.file);
             const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
             await Users.findOneAndUpdate({emailId:decoded.sub},{
-                coverImgURl:req.file.path
+                coverImgURl:"http://localhost:8000/profile/"+req.file.filename
             })
             return res.status(201).send({
                 success:true,
