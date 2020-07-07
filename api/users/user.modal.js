@@ -7,7 +7,7 @@ const userSchema = Schema({
     password:String,
     mobileNo:Number,
     userName:String,
-    profession:String,
+    designation:String,
     country:String,
     city:String,
     hobbies:Array,
