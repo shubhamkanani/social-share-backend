@@ -67,9 +67,9 @@ export const serachUser = async(req,res) =>{
 //edit profile page
 export const updateUser = async(req,res) =>{
     try{
-        const {userId,profession,country,city,hobbies} = req.body;
+        const {userId,designation,country,city,hobbies} = req.body;
         const success = await Users.findByIdAndUpdate({_id:userId},{
-            profession,country,city,hobbies
+            designation,country,city,hobbies
         })
         if(!success){
             res.status(401).send({
