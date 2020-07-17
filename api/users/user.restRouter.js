@@ -57,12 +57,12 @@ const uploadCoverImg = multer({storage:cstroge,
     fileFilter:async function (req, file, cb){
         try{
             const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
-              
+
         const data = await Users.findOne({emailId:decoded.sub})
+            data.coverImgURl="";
             const extension = data.coverImgURl.substring(data.coverImgURl.lastIndexOf(".") + 1);
             const coverUploaddir = path.join(__dirname,'..','..','public','cover');
-            console.log(extension);
-            
+
             if(fs.existsSync(coverUploaddir+'/'+data._id+'.'+extension)){
                 fs.unlink(coverUploaddir+'/'+data._id+'.'+extension, function (err) {
                     if (err) throw err;
@@ -82,11 +82,11 @@ const uploadProfileImg = multer({storage:pstorage,
     fileFilter:async function (req, file, cb){
         try{
             const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
-        const data = await Users.findOne({emailId:decoded.sub})
-            const extension = data.coverImgURl.substring(data.coverImgURl.lastIndexOf(".") + 1);
+            const data = await Users.findOne({emailId:decoded.sub})
+            data.profileImgURl="";
+            const extension = data.profileImgURl.substring(data.profileImgURl.lastIndexOf(".") + 1);
             const profileUploadDir = path.join(__dirname,'..','..','public','profile');
-            console.log(extension);
-            
+
             if(fs.existsSync(profileUploadDir+'/'+data._id+'.'+extension)){
                 fs.unlink(profileUploadDir+'/'+data._id+'.'+extension, function (err) {
                     if (err) throw err;

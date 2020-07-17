@@ -67,9 +67,9 @@ export const serachUser = async(req,res) =>{
 //edit profile page
 export const updateUser = async(req,res) =>{
     try{
-        const {userId,designation,country,city,hobbies} = req.body;
+        const {userId,designation,country,state,city,hobbies} = req.body;
         const success = await Users.findByIdAndUpdate({_id:userId},{
-            designation,country,city,hobbies
+            designation,country,state,city,hobbies
         })
         if(!success){
             res.status(401).send({
@@ -97,7 +97,8 @@ export const setProfileImg = async(req,res) =>{
             console.log(req.file);
             const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
             await Users.findOneAndUpdate({emailId:decoded.sub},{
-                profileImgURL:"http://localhost:8000/profile/"+req.file.filename
+                profileImgURl:"http://localhost:8000/profile/"+req.file.filename
+                // profileImgURl:"http://159.203.67.155:8000/profile/"+req.file.filename
             })
             return res.status(201).send({
                 success:true,
@@ -126,7 +127,8 @@ export const setCoverImg= async(req,res) =>{
             console.log(req.file);
             const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
             await Users.findOneAndUpdate({emailId:decoded.sub},{
-                coverImgURl:"http://localhost:8000/profile/"+req.file.filename
+                coverImgURl:"http://localhost:8000/cover/"+req.file.filename
+                // coverImgURl:"http://159.203.67.155:8000/cover/"+req.file.filename
             })
             return res.status(201).send({
                 success:true,

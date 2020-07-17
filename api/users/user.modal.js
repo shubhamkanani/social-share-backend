@@ -9,9 +9,10 @@ const userSchema = Schema({
     userName:String,
     designation:String,
     country:String,
+    state:String,
     city:String,
     hobbies:Array,
-    profileImgURL:String,
+    profileImgURl:String,
     coverImgURl:String,
     content:String
 }, { timestamps: {createdAt:'created_at'} })
