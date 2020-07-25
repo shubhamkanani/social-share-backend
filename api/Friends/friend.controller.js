@@ -25,8 +25,28 @@ const pushQuery = async(matchId,branchMatchId,branchName) => {
             }
         });
 }
-//get friend list
 
+//featch all user data
+export const allUser = async (req,res) =>{
+    try{
+        const data= await Users.find({},{ '_id': 1, 'name': 1, 'profileImgURl': 1 });
+        if(!data){
+            console.log("data not found");
+        }
+        res.status(201).send({
+            success:true,
+            message:'List fetched successfully',
+            AllUser:[data]
+        })
+    }
+    catch(err){
+        res.status(401).send({
+            success:false,message:err.message
+        });
+    }
+}
+
+//get friend list
 export const getFriendList = async (req,res) =>{
     try{
         const {userId} = req.body
@@ -63,7 +83,7 @@ export const sentFriendRequest = async (req,res) =>{
 
         const requestUserFind = await FriendList.find({userId:requestId})
         //check user  and requestUser document, available or not! , if not then genrate it
-        if(userFind<=0){                                                       
+        if(userFind<=0){
             await FriendList.create({
                 userId:userId,
                 friendList:[],
@@ -71,7 +91,7 @@ export const sentFriendRequest = async (req,res) =>{
                 sentRequest:[]
             })
         }
-        if(requestUserFind<=0){                                                        
+        if(requestUserFind<=0){
             await FriendList.create({
                 userId:requestId,
                 friendList:[],
@@ -101,7 +121,7 @@ export const sentFriendRequest = async (req,res) =>{
         if(findRequest){
             return res.status(401).send({
                 success:false,
-                message:"friend request already sent or recive either you are already friends" 
+                message:"friend request already sent or recive either you are already friends"
             })
         }
         //set request in database and send positive response
@@ -119,15 +139,15 @@ export const sentFriendRequest = async (req,res) =>{
             message:err.message
         })
     }
-} 
+}
 
 //when approve friend request
 
 export const friendRequestAccept = async(req,res) =>{
     try{
-        const {userId,requestId} = req.body; 
+        const {userId,requestId} = req.body;
         const userFind = await FriendList.find({userId:userId}) //check the user exist or not
-        const requestedUser = await Users.findById({_id:requestId}); 
+        const requestedUser = await Users.findById({_id:requestId});
         //console.log('user', requestedUser)
         //find request exist or not if not then send negative response
         var requestExist = false;
@@ -150,7 +170,7 @@ export const friendRequestAccept = async(req,res) =>{
             success:true,
             message:'you and ' + [requestedUser.userName] + " are friend's now"
         })
-        
+
 }
     catch(err){
         res.status(401).send({
@@ -165,7 +185,7 @@ export const showFriendRequetList = async(req,res) =>{
         const {userId} = req.body
         const userFind = await FriendList.find({userId:userId});
         //check user is exist yes then fetch data else send nagative response
-        if(!userFind){                                                          
+        if(!userFind){
             await FriendList.create({
                 userId:userId,
                 friendList:[],
@@ -199,7 +219,7 @@ export const rejectFriendRequest = async(req,res) =>{
         res.status(401).send({
             success:false,
             message:err.message
-        }) 
+        })
     }
 }
 
@@ -220,13 +240,13 @@ export const suggestedFriend = async(req,res) =>{
                     suggest.push(items.friendId);
                 }
             }))
-        })) 
+        }))
         console.log(suggest,'out')
         return res.status(200).send({
             success:true,
             data:suggest
         })
-    }   
+    }
     catch(err){
         res.status(401).send({
             success:false,
