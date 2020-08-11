@@ -40,6 +40,26 @@ export const showphotos = async (req,res) =>{
     }
 }
 
+// based id fetch post
+export const showphotosprofile = async (req,res) =>{
+    try{
+    const userId = req.query.id
+    const postData = await photosList.find({userId:userId})
+    if(!postData){
+        console.log("post data not found");
+    }
+    else{
+        res.send(postData.reverse())
+    }
+    }
+    catch(err){
+        res.status(401).send({
+            success:false,
+            message:err.message
+        })
+    }
+}
+
 //-------------------------------------------------- add new post
 
 export const newPosts = async (req,res) =>{
@@ -378,6 +398,58 @@ export const userUploadedPhotos = async (req,res) =>{
         });
     }
     }
+    catch(err){
+        res.status(401).send({
+            success:false,
+            message:err.message
+        })
+    }
+}
+
+
+//-------------------------------------------------------home page post
+export const homePagePost = async (req,res) =>{
+    try{
+        const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
+        const user = await Users.findOne({emailId:decoded.sub})
+        const userId = user._id;
+        var homePost = [];
+        const Friend = await FriendList.findOne({userId:userId})
+        console.log(Friend);
+        if(Friend == null){
+          res.status(201).send({
+              success:true,
+              message:"You are not any friend"
+          })
+        }
+        var fList=Friend.friendList;
+        console.log(fList);
+        for(var i = 0;i<fList.length;i++){
+            console.log(fList[i].friendId);
+            var post =await photosList.find({userId:fList[i].friendId})
+            for(var j = 0;j<post.length;j++){
+                homePost.push(post[j]);
+            }
+        }
+        var userPost = await photosList.find({userId:userId})
+        for(var j = 0;j<userPost.length;j++){
+            homePost.push(userPost[j]);
+        }
+            var sortedpost = homePost.sort(function (var1, var2) {
+                var a= new Date(var1.createdAt), b = new Date(var2.createdAt);
+                if (a > b)
+                return -1;
+                if (a < b)
+                return 1;
+                return 0;
+            });
+            console.log(sortedpost);
+            return res.status(201).send({
+                success: true,
+                message: "successfully.",
+                posts: sortedpost
+            });
+        }
     catch(err){
         res.status(401).send({
             success:false,

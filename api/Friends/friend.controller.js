@@ -1,5 +1,7 @@
 import {FriendList} from './friend.modal'
 import {Users} from '../users/user.modal'
+import jwt from 'jsonwebtoken';
+import configKey from '../../config'
 
 //push and query
 const pullQuery = async(matchId,branchMatchId,branchName) =>{
@@ -29,7 +31,12 @@ const pushQuery = async(matchId,branchMatchId,branchName) => {
 //featch all user data
 export const allUser = async (req,res) =>{
     try{
-        const data= await Users.find({},{ '_id': 1, 'name': 1, 'profileImgURl': 1 });
+        const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
+        const user = await Users.findOne({emailId:decoded.sub})
+        const userId = user._id
+        // const {userId} = req.body
+        // const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
+        const data= await Users.find({_id:{$not: { $eq: userId }}},{ '_id': 1, 'name': 1, 'profileImgURl': 1 });
         if(!data){
             console.log("data not found");
         }
@@ -182,8 +189,8 @@ export const friendRequestAccept = async(req,res) =>{
 //when user want friend request List
 export const showFriendRequetList = async(req,res) =>{
     try{
-        const {userId} = req.body
-        const userFind = await FriendList.find({userId:userId});
+        const userId = req.query.id
+        const userFind = await FriendList.findOne({userId:userId});
         //check user is exist yes then fetch data else send nagative response
         if(!userFind){
             await FriendList.create({
@@ -192,14 +199,45 @@ export const showFriendRequetList = async(req,res) =>{
                 getRequest:[],
                 sentRequest:[]
             })
-        }
-        res.status(200).send({success:true,
-            message:'List found',
-            list:userFind.getRequest})
-        }
+          }
+          // res.status(200).send({
+          //     success:true,
+          //     message:'List found',
+          //     list:userFind.getRequest.reverse()
+          // })
+          if(userFind.getRequest.length<=0){
+            res.status(200).send({
+                success:true,
+                message:'Not any friend request avilable'
+            })
+          }else{
+            res.status(200).send({
+                success:true,
+                message:'List found',
+                list:userFind.getRequest.reverse()
+            })
+          }
+
+          // else if (userFind.friendList.length > 0) {
+          //   res.status(200).send({
+          //       success:true,
+          //       message:'List found',
+          //       list:userFind.getRequest.reverse()
+          //   })
+          // }else{
+          //   res.status(404).send({
+          //       success:true,
+          //       message:'Record not found'
+          //   })
+          // }
+        // res.status(200).send({success:true,
+        //     message:'List found',
+        //     list:userFind.getRequest.reverse()})
+        // }
+      }
     catch(err){
         res.status(401).send({
-            success:true,
+            success:false,
             message:err.message
         })
     }
@@ -254,3 +292,117 @@ export const suggestedFriend = async(req,res) =>{
         })
     }
 }
+
+
+//show all sentReuest
+export const AllSentRequest = async(req,res) =>{
+    try{
+        const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
+        const data = await Users.findOne({emailId:decoded.sub})
+        const userId = data._id
+        console.log(userId);
+        const userFind = await FriendList.findOne({userId:userId});
+
+        if(!userFind){
+            await FriendList.create({
+                userId:userId,
+                friendList:[],
+                getRequest:[],
+                sentRequest:[]
+            })
+        }
+        res.status(200).send({success:true,
+            message:'List found',
+            list:userFind.sentRequest})
+        }
+    catch(err){
+        res.status(401).send({
+            success:true,
+            message:err.message
+        })
+    }
+}
+
+
+
+// export const showRequestedFriEndData = async(req,res) =>{
+//     try{
+//         const userId = req.query.id
+//         console.log(userId);
+//         const userFind = await Users.findOne({_id:userId},{profileImgURl:1, name:1});
+//         console.log(userFind);
+//         res.status(200).send({success:true,
+//             message:'List found',
+//             list:userFind})
+//         }
+//     catch(err){
+//         res.status(401).send({
+//             success:true,
+//             message:err.message
+//         })
+//     }
+// }
+
+
+//data of requested user data
+export const showRequestedFriEndData = async(req,res) =>{
+    try{
+        const userId = req.query.id
+        console.log(userId);
+        var dataR = [];
+        const Friend = await FriendList.findOne({userId:userId})
+        var fList=Friend.getRequest;
+        console.log(fList);
+        for(var i = 0;i<fList.length;i++){
+            var d =await Users.findById({_id:fList[i].friendId},{name:1,profileImgURl:1})
+            console.log(d);
+            dataR.push(d)
+        }
+        console.log(dataR);
+        res.status(200).send({success:true,
+            message:'List found',
+            list:dataR
+            })
+        }
+    catch(err){
+        res.status(401).send({
+            success:true,
+            message:err.message
+        })
+    }
+}
+
+//-------------------------------------------------------Show all friends for send request but not show your friend
+export const allFriendsList = async (req, res) => {
+  try {
+    const decoded = await jwt.verify(
+      req.headers.token,
+      configKey.secrets.JWT_SECRET
+    );
+    const user = await Users.findOne({ emailId: decoded.sub });
+    const userId = user._id;
+    // console.log(userId);
+    var array = [userId];
+    const friendData = await FriendList.findOne({ userId: userId });
+    var fList = friendData.friendList;
+    // console.log(fList);
+    for (var i = 0; i < fList.length; i++) {
+      //   console.log(fList[i].friendId);
+      array.push(fList[i].friendId);
+    }
+    const data = await Users.find(
+      { _id: { $nin: array } },
+      { _id: 1, name: 1, profileImgURl: 1 }
+    );
+    res.status(201).send({
+      success: true,
+      message: "List fetched successfully",
+      AllUser: [data],
+    });
+  } catch (err) {
+    res.status(401).send({
+      success: false,
+      message: err.message,
+    });
+  }
+};

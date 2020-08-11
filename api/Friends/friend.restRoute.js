@@ -5,13 +5,21 @@ import {
     getFriendList,
     rejectFriendRequest,
     suggestedFriend,
-    allUser
+    allUser,
+    AllSentRequest,
+    showFriendRequetList,
+    showRequestedFriEndData,
+    allFriendsList
 } from './friend.controller'
 export const friendRouter = express.Router();
 
 friendRouter.get("/",allUser)
 friendRouter.post("/send",sentFriendRequest)
 friendRouter.post('/accept',friendRequestAccept)
-friendRouter.post('/show',getFriendList)
+friendRouter.get('/show',getFriendList)
 friendRouter.post("/reject",rejectFriendRequest)
 friendRouter.post('/suggest',suggestedFriend)
+friendRouter.get("/sentRequests",AllSentRequest)
+friendRouter.get('/requests',showFriendRequetList)
+friendRouter.get('/requestsData',showRequestedFriEndData)
+friendRouter.get("/allfriendList",allFriendsList)

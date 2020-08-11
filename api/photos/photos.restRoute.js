@@ -7,7 +7,8 @@ import {
     AddLike,
     sharing,
     userUploadedPhotos,
-
+    showphotosprofile,
+    homePagePost
 }
 
 from './photos.controller'
@@ -60,6 +61,8 @@ const uploadPostImg = multer ({
     }
 })
 
+
+
 photosRouter.post('/newPosts',uploadPostImg.single('Url'),newPosts)
 photosRouter.post('/comment',Addcomment)
 photosRouter.post("/bid",newBid)
@@ -67,3 +70,5 @@ photosRouter.post("/like",AddLike)
 photosRouter.post("/share",sharing)
 photosRouter.get("/show",showphotos)
 photosRouter.get("/userPhoto",userUploadedPhotos)
+photosRouter.get("/showPost",showphotosprofile)
+photosRouter.get("/homePost",homePagePost)
