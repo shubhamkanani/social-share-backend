@@ -56,22 +56,47 @@ export const allUser = async (req,res) =>{
 //get friend list
 export const getFriendList = async (req,res) =>{
     try{
-        const {userId} = req.body
+        // const {userId} = req.body
+        const userId = req.query.userId
+
         //fetch the data of friendList
+        var array = [];
         const data= await FriendList.findOne({userId:userId});
+
         //check data fetched successfull or not
         if(!data){
-            res.status(401).send({
+            return res.status(201).send({
                 success:false,
-                message:'List are not scaned successfully or no friend available'
+                message:'No friends to show'
             })
         }
-        //send fetched data list
-        res.status(201).send({
-            success:true,
-            message:'List fetched successfully',
-            friendList:[data.friendList]
-        })
+
+        var array = [];
+        var list = data.friendList;
+        for (var i = 0; i < list.length; i++) {
+          //   console.log(fList[i].friendId);
+          const userData = await Users.findOne(
+            { _id: list[i].friendId },
+            { _id: 1, name: 1, profileImgURl: 1 }
+          );
+          array.push(userData);
+        }
+        console.log(array);
+        if(array.length > 0)
+        {
+          //send fetched data list
+          res.status(201).send({
+              success:true,
+              message:'List fetched successfully',
+              userInfo: array
+          })
+        }else{
+          res.status(201).send({
+              success:false,
+              message:'No friends to show',
+          })
+        }
+
     }
     catch(err){
         res.status(401).send({
@@ -403,6 +428,47 @@ export const allFriendsList = async (req, res) => {
     res.status(401).send({
       success: false,
       message: err.message,
+    });
+  }
+};
+
+
+//search engin
+function escapeRegex(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+export const searchEngine = async (req, res) => {
+  try {
+    const { search } = req.query;
+    if (req.query.search) {
+      const regex = new RegExp(escapeRegex(search), "gi");
+      // Get all campgrounds from DB
+      const data = await Users.find(
+        { $or: [{ name: regex }, { userName: regex }] },
+        { id: 1, name: 1, userName: 1, profileImgURl: 1 },
+        function (err, searchUser) {
+          if (err) {
+            console.log(err);
+          } else {
+            if (searchUser.length < 1) {
+              res.status(401).send({
+                success: false,
+                data: "No user found, please try again.",
+              });
+            }
+          }
+        }
+      ).limit(20);
+      // console.log(data);
+      return res.status(201).send({
+        success: true,
+        data: data,
+      });
+    }
+  } catch (err) {
+    res.status(401).send({
+      success: false,
+      data: err.data,
     });
   }
 };

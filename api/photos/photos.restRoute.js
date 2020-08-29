@@ -48,14 +48,14 @@ var postStorage = multer.diskStorage({
 const uploadPostImg = multer ({
     storage:postStorage,
     fileFilter:function(req,file,cb){
-        const fileType = /jpeg|jpg|png|gif/;
+        const fileType = /jpeg|jpg|png|gif|mp4/;
         const extension = file.originalname.substring(file.originalname.lastIndexOf('.') + 1);
         const mimetype = fileType.test(file.mimetype);
 
         if(mimetype && extension){
             return cb(null,true);
         }else{
-            cb('Error:you can upload only Image file');
+            cb('Error:you can upload only Image or Mp4 Video file');
         }
 
     }
@@ -63,7 +63,7 @@ const uploadPostImg = multer ({
 
 
 
-photosRouter.post('/newPosts',uploadPostImg.single('Url'),newPosts)
+// photosRouter.post('/newPosts',uploadPostImg.single('Url'),newPosts)
 photosRouter.post('/comment',Addcomment)
 photosRouter.post("/bid",newBid)
 photosRouter.post("/like",AddLike)
@@ -72,3 +72,4 @@ photosRouter.get("/show",showphotos)
 photosRouter.get("/userPhoto",userUploadedPhotos)
 photosRouter.get("/showPost",showphotosprofile)
 photosRouter.get("/homePost",homePagePost)
+photosRouter.post('/newPosts',uploadPostImg.array('Url',12),newPosts)

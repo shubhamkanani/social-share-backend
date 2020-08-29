@@ -5,7 +5,7 @@ const photosSchema = Schema({
     userId:String,
     location:String,
     description:String,
-    imageUrl:String,
+    imageUrl:Array,
     askingPrice:Number,
     currentBid:Array,
     like:Array,
@@ -13,7 +13,7 @@ const photosSchema = Schema({
     share:Array,
     category:String,
     highBid:Number
-  
+
 }, { timestamps: {createdAt:'created_at'} })
 
 export const photosList = mongoose.model('photosDocument',photosSchema);

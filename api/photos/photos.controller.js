@@ -61,76 +61,80 @@ export const showphotosprofile = async (req,res) =>{
 }
 
 //-------------------------------------------------- add new post
+export const newPosts = async (req, res) => {
+  try {
+    // console.log(req.files)
+    const { location, description, askingPrice, category } = req.body;
+    var imgFilesArray = [];
+    const img = req.files;
 
-export const newPosts = async (req,res) =>{
-
-    try{
-        // console.log(req.file)
-        // if(req.file){
-        const {location,description,askingPrice,category} = req.body;
-        if(req.file){
-          const img = req.file.filename
-          var imgUrl =  "http://localhost:8000/post/"+img
+    console.log("-=-=-=-=-=- img array", img);
+    img.forEach((element) => {
+      // console.log(element.filename)
+      var imgUrl = "http://localhost:8000/post/" + element.filename;
+      imgFilesArray.push(imgUrl);
+    });
+    // var imgUrl =  "http://159.203.67.155:8000/api/photos/"+img  //For server
+    // console.log(imgFilesArray);
+    const decoded = await jwt.verify(
+      req.headers.token,
+      configKey.secrets.JWT_SECRET
+    );
+    const data = await Users.findOne({ emailId: decoded.sub });
+    const userId = data._id;
+    // const userId =req.body.userId
+    var highBid = 0;
+    var now = new Date();
+    await photosList.create({
+      userId,
+      location,
+      description,
+      askingPrice,
+      category,
+      highBid,
+      imageUrl: imgFilesArray,
+    });
+    const friendData = await FriendList.findOne({ userId: userId });
+    if (friendData) {
+      const fList = friendData.friendList;
+      // console.log(fList);
+      // console.log(fList.length);
+      for (var i = 0; i < fList.length; i++) {
+        console.log();
+        const usernotification = await notificationList.findOne({
+          userId: fList[i].friendId,
+        });
+        if (!usernotification) {
+          await notificationList.create({
+            userId: fList[i].friendId,
+            notificaton: [],
+          });
         }
-        // var imgUrl =  "http://159.203.67.155:8000/api/photos/"+img  //For server
-        const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
-        const data = await Users.findOne({emailId:decoded.sub})
-        const userId =  data._id
-        var highBid  = 0
-        var now = new Date();
-
-            await photosList.create({
-                userId,
-                location,
-                description,
-                askingPrice,
-                category,
-                highBid,
-                imageUrl:imgUrl
-            })
-
-            // const friendData = await FriendList.findOne({userId:userId})
-            // const fList=friendData.friendList
-            // console.log(fList);
-            // console.log(fList.length);
-            //
-            // for(var i = 0;i<fList.length;i++){
-            //     const usernotification = await notificationList.findOne({userId:fList[i].friendId})
-            //     if(!usernotification){
-            //         await notificationList.create({
-            //             userId:fList[i].friendId,
-            //             notificaton:[]
-            //         })
-            //     }
-            //     await notificationList.findOneAndUpdate({userId:fList[i].friendId},{
-            //         $push:{notification : {
-            //             type : "new post",
-            //             userPostId: userId,
-            //             userprofile:data.profileImgURL,
-            //             content : data.name + "has created new post",
-            //             phostImg : imgUrl,
-            //             date : now
-            //         }}
-            //     })
-            // }
-            return res.status(201).send({
-                success: true,
-                message: "post created successfully."
-              });
-            // }
-
-        // else{
-            // res.status(401).send({
-            //     success:false,
-            //     message:"image file not uploaded"
-            //     })
-            // }
+        await notificationList.findOneAndUpdate(
+          { userId: fList[i].friendId },
+          {
+            $push: {
+              notification: {
+                type: "new post",
+                userPostId: userId,
+                userprofile: data.profileImgURL,
+                content: data.name + "has created new post",
+                phostImg: imgFilesArray,
+                date: now,
+              },
+            },
+          }
+        );
+      }
     }
-    catch(err){
-        res.status(422).send({ success: false,
-            message: err.message });
-    }
-}
+    return res.status(201).send({
+      success: true,
+      message: "post created successfully.",
+    });
+  } catch (err) {
+    res.status(422).send({ success: false, message: err.message });
+  }
+};
 
 //---------------------------------------------------- add comment
 
