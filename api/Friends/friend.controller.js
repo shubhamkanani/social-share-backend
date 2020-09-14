@@ -60,12 +60,12 @@ export const getFriendList = async (req,res) =>{
         const userId = req.query.userId
 
         //fetch the data of friendList
-        var array = [];
+        // var array = [];
         const data= await FriendList.findOne({userId:userId});
 
         //check data fetched successfull or not
         if(!data){
-            return res.status(201).send({
+            res.status(201).send({
                 success:false,
                 message:'No friends to show'
             })
@@ -290,33 +290,47 @@ export const rejectFriendRequest = async(req,res) =>{
 // const getSuggestFriend = (friend) =>{
 
 // }
-export const suggestedFriend = async(req,res) =>{
-    try{
-        const {userId} = req.body
-        const friends = await FriendList.findOne({userId:userId})
-        const data=[];
-        const suggest =[];
-        await Promise.all(friends.friendList.map(async(item)=>{
-            const findFriendOfFriend = await FriendList.findOne({userId:item.friendId})
-            await Promise.all(findFriendOfFriend.friendList.map((items)=>{
-                if(!items.friendId==userId){
-                    suggest.push(items.friendId);
-                }
-            }))
-        }))
-        console.log(suggest,'out')
-        return res.status(200).send({
-            success:true,
-            data:suggest
-        })
+export const suggestedFriend = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const friends = await FriendList.findOne({ userId: userId });
+    const Fdata = [];
+    for (var i = 0; i < friends.friendList.length; i++) {
+      Fdata.push(friends.friendList[i].friendId);
     }
-    catch(err){
-        res.status(401).send({
-            success:false,
-            message:err.message
-        })
-    }
-}
+    const suggest = [];
+    await Promise.all(
+      friends.friendList.map(async (item) => {
+        const findFriendOfFriend = await FriendList.findOne({
+          userId: item.friendId,
+        });
+        await Promise.all(
+          findFriendOfFriend.friendList.map((items) => {
+            if (items.friendId != userId) {
+              suggest.push(items.friendId);
+            }
+          })
+        );
+      })
+    );
+    var data = suggest.filter(function (i) {
+      return this.indexOf(i) < 0;
+    }, Fdata);
+    const Udata = await Users.find(
+      { _id: { $in: data } },
+      { _id: 1, name: 1, profileImgURl: 1 }
+    );
+    return res.status(200).send({
+      success: true,
+      data: Udata,
+    });
+  } catch (err) {
+    res.status(401).send({
+      success: false,
+      message: err.message,
+    });
+  }
+};
 
 
 //show all sentReuest
@@ -446,29 +460,25 @@ export const searchEngine = async (req, res) => {
       const data = await Users.find(
         { $or: [{ name: regex }, { userName: regex }] },
         { id: 1, name: 1, userName: 1, profileImgURl: 1 },
-        function (err, searchUser) {
-          if (err) {
-            console.log(err);
-          } else {
-            if (searchUser.length < 1) {
-              res.status(401).send({
-                success: false,
-                data: "No user found, please try again.",
-              });
-            }
-          }
-        }
+
       ).limit(20);
-      // console.log(data);
-      return res.status(201).send({
-        success: true,
-        data: data,
-      });
+      if(data.length) {
+        res.status(201).send({
+          success: true,
+          data: data,
+        });
+      }else {
+        res.status(201).send({
+          code: 400,
+          success: false,
+          data: "We didn't find any results"
+        });
+      }
     }
   } catch (err) {
     res.status(401).send({
       success: false,
-      data: err.data,
+      data: err.message
     });
   }
 };

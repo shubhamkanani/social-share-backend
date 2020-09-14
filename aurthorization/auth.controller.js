@@ -9,8 +9,8 @@ const smtpTransport = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     auth: {
-      user: "shubhamkanani.dds@gmail.com",
-      pass: 'Sh9825784600'
+      user: "test.dds0001@gmail.com",
+      pass: '1234daydreamsoft'
     }
   });
 // Registration api

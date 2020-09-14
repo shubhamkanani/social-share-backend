@@ -57,7 +57,6 @@ const uploadPostImg = multer ({
         }else{
             cb('Error:you can upload only Image or Mp4 Video file');
         }
-
     }
 })
 

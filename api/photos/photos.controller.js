@@ -20,16 +20,25 @@ async function fname(data){
 
 export const showphotos = async (req,res) =>{
     try{
-    const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
-    const data = await Users.findOne({emailId:decoded.sub})
-    const userId = data._id
+    // const decoded = await jwt.verify(req.headers.token, configKey.secrets.JWT_SECRET);
+    // const data = await Users.findOne({emailId:decoded.sub})
+    // const userId = data._id
 
+    const userId = req.query.id
     const postData = await photosList.find({userId:userId})
+    console.log("-=-=-=-=-not any post", postData);  //[]
     if(!postData){
-        console.log("post data not found");
+        console.log("user not found");
+    }
+    else if(postData.length>0){
+      res.send(postData.reverse())
     }
     else{
-        res.send(postData.reverse())
+      res.status(201).send({
+        code: 404,
+        success: false,
+        message: "post not found.",
+      });
     }
     }
     catch(err){
@@ -266,22 +275,21 @@ export const newPosts = async (req, res) => {
 
             var temp = 0
             postData.like.forEach(element => {
-                if(element.userId=userId)
+                if(element.userId == userId.toString())
                 {
                     temp = 1
                 }
             });
             if(temp==1){
-                console.log("already LIKEED");
-                    await photosList.findByIdAndUpdate({_id:postId},{
-                        $pull:{like : { userId : userId }}
-                    })
-                    if(userId != Pdata.userId){
-                    await notificationList.findOneAndUpdate({userId:Pdata.userId},{
-                        $pull:{notification : { userLikedId: userId }}
-                    })
-                    }
-
+              console.log("already LIKEED");
+              await photosList.findByIdAndUpdate({_id:postId},{
+                  $pull:{like : { userId : userId }}
+              })
+              if(userId != Pdata.userId){
+                await notificationList.findOneAndUpdate({userId:Pdata.userId},{
+                    $pull:{notification : { userLikedId: userId }}
+                })
+              }
             }
             if(temp==0){
                 console.log("like done");
@@ -301,11 +309,11 @@ export const newPosts = async (req, res) => {
                         date : now
                     }}
                 })
-                }else{console.log("self like");}
+                }else{console.log("self like")}
             }
             return res.status(201).send({
                 success:true,
-                message:' successfully added'
+                message:'successfully added'
             })
 
             // const total = await photosList.findOne({_id:postId})
