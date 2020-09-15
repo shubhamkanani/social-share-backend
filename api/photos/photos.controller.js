@@ -158,11 +158,12 @@ export const newPosts = async (req, res) => {
             const data = await Users.findOne({emailId:decoded.sub})
             const userId = data._id
 
+            const userData = await Users.findById({_id:userId});
             console.log(Pdata.userId)
             var now = new Date();
 
             await photosList.findByIdAndUpdate({_id:postId},{
-                $push:{comment : {_id: mongoose.Types.ObjectId(), userId : userId , newcomment : newcomment , date : now  }}
+                $push:{comment : {_id: mongoose.Types.ObjectId(), userId : userId, name:userData.name, profile:userData.profileImgURl, newcomment : newcomment , date : now  }}
             })
 
         fname(Pdata.userId);
