@@ -249,7 +249,7 @@ export const newPosts = async (req, res) => {
                 message:'bid added successfully'
             })
 
-            }else{res.send("you can\'t big")}
+          }else{res.send("you can\'t bid")}
 
         }
         catch(err){

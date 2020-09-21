@@ -286,6 +286,25 @@ export const rejectFriendRequest = async(req,res) =>{
     }
 }
 
+
+// delete sendrequest
+export const removeSendRequest = async (req, res) => {
+  try {
+    const { userId, requestId } = req.body;
+    pullQuery(userId, requestId, "sentRequest");
+    pullQuery(requestId, userId, "getRequest");
+    return res.status(201).send({
+      success: true,
+      message: "remove request",
+    });
+  } catch (err) {
+    res.status(401).send({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 //suggested friends
 // const getSuggestFriend = (friend) =>{
 

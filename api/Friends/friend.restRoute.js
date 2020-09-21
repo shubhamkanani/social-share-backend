@@ -10,7 +10,8 @@ import {
     showFriendRequetList,
     showRequestedFriEndData,
     allFriendsList,
-    searchEngine
+    searchEngine,
+    removeSendRequest
 } from './friend.controller'
 export const friendRouter = express.Router();
 
@@ -25,3 +26,4 @@ friendRouter.get('/requests',showFriendRequetList)
 friendRouter.get('/requestsData',showRequestedFriEndData)
 friendRouter.get("/allfriendList",allFriendsList)
 friendRouter.get("/search",searchEngine)
+friendRouter.post('/removeRequest',removeSendRequest)
